@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Green Mobility - design preview</title>
+<style>
+
+
+:root {
+    --bg: #07100b;
+    --side: #0b1710;
+    --card: #0f1d15;
+    --line: #1f3a2b;
+    --line-soft: #1a2f22;
+    --mint: #4ade80;
+    --lime: #c6f565;
+    --forest: #1e5e3a;
+    --pill: #12331f;
+    --text: #ecf5ef;
+    --muted: #8da699;
+    --track: #1b2b22;
+    --dim: #2a3d32;
+    --danger: #ff7a8a;
+    --danger-bg: #3a1a1f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    background-image: radial-gradient(800px 420px at 85% -10%, rgba(74, 222, 128, 0.12), transparent 60%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+a { color: var(--mint); text-decoration: none; }
+h1, h2, h3 { margin: 0; letter-spacing: -0.02em; }
+
+/* ---------- app shell: sidebar + main ---------- */
+.app {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background: var(--side);
+    border-right: 1px solid var(--line-soft);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    display: block;
+    margin: 0 8px 28px;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+.brand span { color: var(--mint); }
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+.nav-link:hover { background: var(--pill); color: var(--text); }
+.nav-link.active { background: var(--mint); color: #04210f; font-weight: 600; }
+
+.side-bottom { margin-top: auto; }
+
+.saved {
+    background: var(--pill);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+.saved small { display: block; color: var(--muted); font-size: 12px; }
+.saved b { color: var(--mint); font-size: 22px; font-weight: 600; }
+
+.user { display: flex; align-items: center; gap: 10px; padding: 4px 6px; }
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.user-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.logout { font-size: 12px; color: var(--muted); }
+.logout:hover { color: var(--danger); }
+
+.main {
+    padding: 36px 40px 80px;
+    max-width: 1000px;
+    width: 100%;
+}
+
+.page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+.page-head h1 { font-size: 30px; font-weight: 600; }
+.page-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+.grad { color: var(--mint); }
+
+.chip {
+    background: var(--pill);
+    color: var(--mint);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+/* ---------- filter chips ---------- */
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.filter {
+    font-family: inherit;
+    font-size: 13px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 7px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.filter:hover { color: var(--text); border-color: var(--mint); }
+.filter.active { background: var(--mint); color: #04210f; border-color: var(--mint); font-weight: 600; }
+
+/* ---------- slot rows with seat dots ---------- */
+.slots { display: grid; gap: 10px; }
+
+.slot-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 14px 18px;
+    transition: 0.2s;
+}
+.slot-row:hover {
+    border-color: rgba(74, 222, 128, 0.55);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -14px rgba(74, 222, 128, 0.4);
+}
+.slot-row.is-full { opacity: 0.6; }
+.slot-row.is-full:hover { transform: none; box-shadow: none; border-color: var(--line); }
+
+.slot-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: var(--pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.slot-info { flex: 1; min-width: 0; }
+.slot-info h3 { font-size: 15px; font-weight: 600; }
+.slot-info p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+
+.seat-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.dots { display: flex; gap: 4px; }
+.dot { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+.dot.on { background: var(--mint); }
+.dot.full { background: var(--danger); }
+.seats { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.empty-note { display: none; text-align: center; color: var(--muted); padding: 30px 0; font-size: 14px; }
+
+/* ---------- buttons ---------- */
+.btn {
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: var(--mint);
+    color: #04210f;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 22px -8px rgba(74, 222, 128, 0.7); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); cursor: default; }
+.btn-ghost:hover { transform: none; box-shadow: none; }
+.btn-block { width: 100%; padding: 13px; font-size: 14px; }
+
+/* ---------- panels, forms ---------- */
+.panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 26px;
+}
+
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+
+input[type=text], input[type=email], input[type=password], input[type=number] {
+    width: 100%;
+    background: #0a150f;
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+input:focus { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15); }
+input::placeholder { color: #54695c; }
+
+.back { display: inline-block; color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+.back:hover { color: var(--mint); }
+
+.detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.detail div { background: #0a150f; border: 1px solid var(--line-soft); border-radius: 14px; padding: 12px 14px; }
+.detail small { display: block; color: var(--muted); font-size: 12px; }
+.detail b { font-size: 15px; font-weight: 500; }
+
+.estimate {
+    background: var(--pill);
+    color: var(--mint);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-bottom: 18px;
+}
+
+.alert { padding: 12px 16px; border-radius: 12px; font-size: 14px; margin-bottom: 18px; }
+.alert-ok { background: var(--pill); color: var(--mint); border: 1px solid var(--line); }
+.alert-err { background: var(--danger-bg); color: var(--danger); border: 1px solid #5a2a31; }
+
+/* ---------- seat hold countdown ---------- */
+.hold {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--pill);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+}
+.hold-time {
+    min-width: 88px;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--mint);
+    font-variant-numeric: tabular-nums;
+}
+.hold-text { flex: 1; min-width: 0; }
+.hold-text b { display: block; font-size: 14px; font-weight: 600; }
+.hold-text span { font-size: 12px; color: var(--muted); }
+.hold-bar { height: 4px; background: var(--track); border-radius: 999px; margin-top: 8px; overflow: hidden; }
+.hold-bar i { display: block; height: 100%; width: 100%; background: var(--mint); transition: width 1s linear; }
+.hold.warn .hold-time { color: #f5c451; }
+.hold.warn .hold-bar i { background: #f5c451; }
+.hold.expired { background: var(--danger-bg); border-color: #5a2a31; }
+.hold.expired .hold-time { color: var(--danger); }
+
+.dot.held { background: #f5c451; }
+.alert-warn { background: #2f2711; color: #f5c451; border: 1px solid #5a4a1a; }
+.alert-warn a { color: #f5c451; text-decoration: underline; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ---------- impact stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 26px; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+.stat small { display: block; font-size: 12px; color: var(--muted); }
+.stat b { display: block; font-size: 30px; font-weight: 600; margin: 4px 0; }
+.stat span { font-size: 12px; color: var(--muted); }
+.stat.hero { background: var(--lime); border-color: var(--lime); }
+.stat.hero small, .stat.hero span { color: var(--forest); }
+.stat.hero b { color: #0b2a14; }
+
+h2.section { font-size: 18px; font-weight: 600; margin: 0 0 12px; }
+
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 6px 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12px; padding: 12px; }
+td { padding: 12px; border-top: 1px solid var(--line-soft); }
+td.good { color: var(--mint); font-weight: 600; }
+
+/* ---------- leaderboard ---------- */
+.lb-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+}
+.lb-row.me { border-color: var(--mint); background: var(--pill); }
+.rank { width: 34px; text-align: center; font-size: 20px; font-weight: 600; color: var(--muted); }
+.lb-name { flex: 1; font-weight: 500; font-size: 15px; }
+.lb-score { color: var(--mint); font-weight: 600; }
+
+/* ---------- login / register ---------- */
+.auth { min-height: 100vh; display: grid; grid-template-columns: 1.1fr 1fr; }
+.auth-hero { padding: 64px; display: flex; flex-direction: column; justify-content: center; }
+.auth-hero .brand { margin: 0 0 40px; font-size: 22px; }
+.auth-hero h1 { font-size: 48px; line-height: 1.1; font-weight: 700; margin-bottom: 14px; }
+.auth-hero p { color: var(--muted); font-size: 16px; max-width: 420px; margin: 0 0 28px; }
+.hero-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.auth-side { display: flex; align-items: center; justify-content: center; padding: 32px; }
+.auth-card { width: 100%; max-width: 400px; }
+.auth-card h2 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.auth-card .sub { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+.auth-card .switch { text-align: center; font-size: 13px; color: var(--muted); margin: 16px 0 0; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; padding: 16px; }
+    .brand { margin-bottom: 14px; }
+    .nav { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nav-link { margin-bottom: 0; }
+    .side-bottom { margin-top: 14px; }
+    .main { padding: 24px 16px 60px; }
+    .slot-row { flex-wrap: wrap; }
+    .seat-wrap { align-items: flex-start; }
+    .auth { grid-template-columns: 1fr; }
+    .auth-hero { padding: 36px 24px 8px; }
+    .auth-hero h1 { font-size: 34px; }
+}
+
+.preview-note{position:fixed;bottom:12px;right:12px;background:var(--pill);color:var(--mint);font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);z-index:50}
+</style>
+</head>
+<body>
+
+<div class="auth" id="authView">
+  <div class="auth-hero">
+    <span class="brand">🌱 campus<span>green</span></span>
+    <h1>Ride green.<br><span class="grad">Save carbon.</span></h1>
+    <p>Book EV shuttles and shared bikes around campus, and watch your CO2 savings add up with every trip.</p>
+    <div class="hero-chips">
+      <span class="chip">🚌 EV shuttles</span><span class="chip">🚲 Shared bikes</span><span class="chip">🌍 Live CO2 tracker</span>
+    </div>
+  </div>
+  <div class="auth-side">
+    <div class="panel auth-card">
+      <h2>Welcome back</h2>
+      <p class="sub">Log in to book your next ride.</p>
+      <label>Email</label>
+      <input type="email" value="sanjith@woxsen.edu.in">
+      <label>Password</label>
+      <input type="password" value="password">
+      <button class="btn btn-block" id="loginBtn" type="button">Log in</button>
+      <p class="switch">New here? <a href="#">Create an account</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="appView" style="display:none">
+  <aside class="sidebar">
+    <a class="brand" href="#" data-view="book">🌱 campus<span>green</span></a>
+    <nav class="nav">
+      <a class="nav-link active" href="#" data-view="book">🚌 Book a ride</a>
+      <a class="nav-link" href="#" data-view="impact">📊 My impact</a>
+      <a class="nav-link" href="#" data-view="leaderboard">🏆 Leaderboard</a>
+    </nav>
+    <div class="side-bottom">
+      <div class="saved"><small>Saved so far</small><b>1.26 kg</b></div>
+      <div class="user"><span class="avatar">S</span><span class="user-name">Sanjith</span><a class="logout" href="#" id="logoutBtn">Log out</a></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section data-section="book">
+      <div class="page-head">
+        <div><h1>Ride green. <span class="grad">Save carbon.</span></h1><p>Live seats, updated every time someone books.</p></div>
+        <span class="chip">🌱 1.26 kg saved</span>
+      </div>
+      <div class="alert alert-warn" id="expiredBanner" style="display:none">Your 2-minute hold ran out before you confirmed, so the seat was released. Pick a slot to try again.</div>
+      <div class="filters">
+        <button type="button" class="filter active" data-filter="all">All</button>
+        <button type="button" class="filter" data-filter="shuttle">Shuttles</button>
+        <button type="button" class="filter" data-filter="bike">Bikes</button>
+        <button type="button" class="filter" data-filter="open">Open only</button>
+      </div>
+      <div class="slots" id="slots"></div>
+      <p class="empty-note" id="empty">No slots match that filter.</p>
+    </section>
+
+    <section data-section="confirm" style="display:none">
+      <a class="back" href="#" id="backBtn">← Back to slots (releases your seat)</a>
+      <div class="page-head"><div><h1>Confirm your <span class="grad">booking</span></h1><p>One quick detail and your seat is yours.</p></div></div>
+
+      <div class="hold" id="hold">
+        <div class="hold-time" id="timer">2:00</div>
+        <div class="hold-text">
+          <b id="holdTitle">Seat held for you</b>
+          <span id="holdSub">Confirm before the timer runs out, or the seat goes back on sale.</span>
+          <div class="hold-bar"><i id="bar"></i></div>
+        </div>
+      </div>
+      <div class="alert alert-warn" id="expiredNote" style="display:none">
+        Your 2-minute hold ran out and the seat was released.
+        <a href="#" id="again">Hold a seat again</a> or <a href="#" data-view="book">pick another slot</a>.
+      </div>
+
+      <div class="panel">
+        <div class="detail" id="detail"></div>
+        <label>Trip distance (km), used to estimate your CO2 savings</label>
+        <input id="km" type="number" step="0.1" min="0.1" placeholder="4.5">
+        <div class="estimate">🌱 You'll save about <b id="est">0.00</b> kg CO2 compared with a private vehicle.</div>
+        <button class="btn btn-block" type="button" id="confirmBtn">Confirm booking</button>
+      </div>
+    </section>
+
+    <section data-section="impact" style="display:none">
+      <div class="page-head">
+        <div><h1>My <span class="grad">impact</span></h1><p>Every shared ride keeps a private vehicle off the road.</p></div>
+        <a class="btn" href="#" data-view="book">Book another ride</a>
+      </div>
+      <div class="alert alert-ok" id="okMsg" style="display:none">Booking confirmed. Your impact totals are updated below.</div>
+      <div class="stats">
+        <div class="stat hero"><small>Total CO2 saved</small><b>1.26 kg</b><span>across all your bookings</span></div>
+        <div class="stat"><small>Trips booked</small><b>2</b><span>green rides so far</span></div>
+        <div class="stat"><small>Trees' yearly CO2 uptake</small><b>0.06</b><span>rough estimate, about 21 kg per tree per year</span></div>
+      </div>
+      <h2 class="section">Booking history</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Date</th><th>Vehicle</th><th>Route</th><th>Time</th><th>Distance</th><th>CO2 saved</th></tr>
+          <tr><td>2026-10-12 10:05</td><td>🚌 EV Shuttle</td><td>Campus Gate -> Hostel Block C</td><td>05:30 PM</td><td>4.5 km</td><td class="good">0.54 kg</td></tr>
+          <tr><td>2026-10-11 08:20</td><td>🚲 Shared Bike</td><td>Library -> Sports Complex</td><td>09:00 AM</td><td>6.0 km</td><td class="good">0.72 kg</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section data-section="leaderboard" style="display:none">
+      <div class="page-head">
+        <div><h1>Green <span class="grad">leaderboard</span></h1><p>Top 10 students ranked by total CO2 saved.</p></div>
+        <span class="chip">🌱 You: 1.26 kg</span>
+      </div>
+      <div id="lb"></div>
+    </section>
+  </main>
+</div>
+
+<span class="preview-note">Design preview with sample data</span>
+
+<script>
+var HOLD_SECONDS = 120;
+var SLOTS = [
+  {t:'EV Shuttle', r:'Campus Gate -> Hostel Block C', time:'08:00 AM', cap:20, booked:0, others:0},
+  {t:'EV Shuttle', r:'Campus Gate -> Hostel Block C', time:'05:30 PM', cap:20, booked:17, others:0},
+  {t:'Shared Bike', r:'Library -> Sports Complex', time:'09:00 AM', cap:10, booked:10, others:0},
+  {t:'Shared Bike', r:'Library -> Sports Complex', time:'04:00 PM', cap:10, booked:7, others:3},
+  {t:'EV Shuttle', r:'Main Building -> Metro Station', time:'07:45 AM', cap:15, booked:0, others:2}
+];
+var BOARD = [['Aarav Mehta',4.82],['Isha Rao',3.10],['Rohan Das',2.45],['Sanjith',1.26,true],['Meera Nair',0.72]];
+var FACTOR = 0.12;
+var hold = null;       // {idx, end}
+var lastIdx = null;    // slot of the most recent hold (for "hold again")
+var view = 'book';
+
+function icon(t){ return t === 'Shared Bike' ? '🚲' : '🚌'; }
+function myCount(i){ return hold && hold.idx === i ? 1 : 0; }
+
+function renderSlots(){
+  var html = '';
+  SLOTS.forEach(function(s, idx){
+    var held = s.others + myCount(idx);
+    var left = s.cap - s.booked - held, full = left <= 0, mine = myCount(idx) === 1;
+    var lit = full ? 0 : Math.max(1, Math.round(left * 10 / s.cap));
+    var dots = '';
+    for (var i = 1; i <= 10; i++) dots += '<i class="dot ' + (full ? (held > 0 ? 'held' : 'full') : (i <= lit ? 'on' : '')) + '"></i>';
+    var btn = mine ? '<a class="btn book" href="#" data-idx="' + idx + '">Resume</a>'
+            : full ? '<span class="btn btn-ghost">' + (held > 0 ? 'On hold' : 'Full') + '</span>'
+            : '<a class="btn book" href="#" data-idx="' + idx + '">Book</a>';
+    html += '<div class="slot-row ' + (full && !mine ? 'is-full' : '') + '" data-type="' + (s.t === 'Shared Bike' ? 'bike' : 'shuttle') + '" data-open="' + (!full) + '">' +
+      '<div class="slot-icon">' + icon(s.t) + '</div>' +
+      '<div class="slot-info"><h3>' + s.t + '</h3><p>' + s.r + ' · ' + s.time + '</p></div>' +
+      '<div class="seat-wrap"><div class="dots">' + dots + '</div><span class="seats">' + left + ' of ' + s.cap + ' left' + (held > 0 ? ' · ' + held + ' on hold' : '') + '</span></div>' +
+      btn + '</div>';
+  });
+  document.getElementById('slots').innerHTML = html;
+  applyFilter();
+}
+
+function currentFilter(){ var f = document.querySelector('.filter.active'); return f ? f.dataset.filter : 'all'; }
+function applyFilter(){
+  var f = currentFilter(), shown = 0;
+  document.querySelectorAll('.slot-row').forEach(function(r){
+    var ok = f === 'all' || (f === 'open' && r.dataset.open === 'true') || r.dataset.type === f;
+    r.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  });
+  document.getElementById('empty').style.display = shown ? 'none' : 'block';
+}
+
+function renderBoard(){
+  var medals = ['🥇','🥈','🥉'], html = '';
+  BOARD.forEach(function(b, i){
+    html += '<div class="lb-row ' + (b[2] ? 'me' : '') + '"><span class="rank">' + (medals[i] || (i + 1)) + '</span>' +
+      '<span class="lb-name">' + b[0] + (b[2] ? ' (you)' : '') + '</span><span class="lb-score">' + b[1].toFixed(2) + ' kg</span></div>';
+  });
+  document.getElementById('lb').innerHTML = html;
+}
+
+function show(v){
+  view = v;
+  document.querySelectorAll('[data-section]').forEach(function(s){ s.style.display = s.dataset.section === v ? '' : 'none'; });
+  var navView = v === 'confirm' ? 'book' : v;
+  document.querySelectorAll('.nav-link').forEach(function(a){ a.classList.toggle('active', a.dataset.view === navView); });
+  window.scrollTo(0, 0);
+}
+
+function resetConfirmUi(){
+  var h = document.getElementById('hold');
+  h.className = 'hold';
+  document.getElementById('holdTitle').textContent = 'Seat held for you';
+  document.getElementById('holdSub').textContent = 'Confirm before the timer runs out, or the seat goes back on sale.';
+  document.getElementById('expiredNote').style.display = 'none';
+  var b = document.getElementById('confirmBtn'); b.disabled = false; b.textContent = 'Confirm booking';
+}
+
+function startHold(idx){
+  var s = SLOTS[idx];
+  var others = s.cap - s.booked - s.others - (hold && hold.idx === idx ? 1 : 0);
+  if (!(hold && hold.idx === idx) && others <= 0) return;
+  if (!(hold && hold.idx === idx)) hold = {idx: idx, end: Date.now() + HOLD_SECONDS * 1000};
+  lastIdx = idx;
+  document.getElementById('detail').innerHTML =
+    '<div><small>Vehicle</small><b>' + icon(s.t) + ' ' + s.t + '</b></div>' +
+    '<div><small>Route</small><b>' + s.r + '</b></div>' +
+    '<div><small>Time</small><b>' + s.time + '</b></div>' +
+    '<div><small>Other seats still open</small><b>' + Math.max(s.cap - s.booked - s.others - 1, 0) + ' of ' + s.cap + '</b></div>';
+  document.getElementById('km').value = '';
+  document.getElementById('est').textContent = '0.00';
+  resetConfirmUi();
+  renderSlots();
+  show('confirm');
+  updateTimer();
+}
+
+function updateTimer(){
+  if (view !== 'confirm') return;
+  var h = document.getElementById('hold');
+  if (!hold){
+    document.getElementById('timer').textContent = '0:00';
+    document.getElementById('bar').style.width = '0%';
+    h.classList.remove('warn'); h.classList.add('expired');
+    document.getElementById('holdTitle').textContent = 'Hold expired';
+    document.getElementById('holdSub').textContent = 'Your seat has been released for other students.';
+    document.getElementById('expiredNote').style.display = 'block';
+    var b = document.getElementById('confirmBtn'); b.disabled = true; b.textContent = 'Hold expired';
+    return;
+  }
+  var left = Math.max(Math.ceil((hold.end - Date.now()) / 1000), 0);
+  var m = Math.floor(left / 60), s = left % 60;
+  document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  document.getElementById('bar').style.width = (left / HOLD_SECONDS * 100) + '%';
+  h.classList.toggle('warn', left <= 30);
+}
+
+setInterval(function(){
+  if (hold && hold.end - Date.now() <= 0){
+    hold = null;
+    renderSlots();
+    if (view === 'book') document.getElementById('expiredBanner').style.display = 'block';
+  }
+  updateTimer();
+}, 500);
+
+renderSlots(); renderBoard();
+
+document.getElementById('loginBtn').onclick = function(){
+  document.getElementById('authView').style.display = 'none';
+  document.getElementById('appView').style.display = '';
+  show('book');
+};
+document.getElementById('logoutBtn').onclick = function(e){
+  e.preventDefault();
+  document.getElementById('appView').style.display = 'none';
+  document.getElementById('authView').style.display = '';
+};
+document.getElementById('backBtn').onclick = function(e){
+  e.preventDefault();
+  hold = null; renderSlots(); show('book');
+};
+document.getElementById('again').onclick = function(e){
+  e.preventDefault();
+  if (lastIdx !== null) startHold(lastIdx);
+};
+
+document.addEventListener('click', function(e){
+  var v = e.target.closest('[data-view]');
+  if (v){
+    e.preventDefault();
+    document.getElementById('okMsg').style.display = 'none';
+    if (v.dataset.view === 'book') document.getElementById('expiredBanner').style.display = 'none';
+    show(v.dataset.view);
+    return;
+  }
+  var b = e.target.closest('.book');
+  if (b){ e.preventDefault(); document.getElementById('expiredBanner').style.display = 'none'; startHold(+b.dataset.idx); return; }
+  var f = e.target.closest('.filter');
+  if (f){
+    document.querySelectorAll('.filter').forEach(function(c){ c.classList.remove('active'); });
+    f.classList.add('active');
+    applyFilter();
+  }
+});
+
+document.getElementById('km').addEventListener('input', function(){
+  document.getElementById('est').textContent = ((parseFloat(this.value) || 0) * FACTOR).toFixed(2);
+});
+document.getElementById('confirmBtn').onclick = function(){
+  if (!hold) return;
+  SLOTS[hold.idx].booked++;
+  hold = null;
+  renderSlots();
+  document.getElementById('okMsg').style.display = '';
+  show('impact');
+};
+</script>
+</body>
+</html>
